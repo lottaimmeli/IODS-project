@@ -1,4 +1,26 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
 
 # About the project
 
 *Write a short description about the course and add a link to your github repository here. This is an R markdown (.Rmd) file so you can use R markdown syntax. See the 'Useful links' page in the mooc area (chapter 1) for instructions.*
+
+"*Our era of data* - larger than ever and complex like chaos - **requires several skills** from statisticians and other data scientists."
+
+## This is a course where you can learn new skills about.
+* using open data science tools
+* learn to use R
+* learn to use R markdown
+* learn to use Github
+
+The course takes place in Unioninkatu 25 
+========================================
+
+Every tuesday at 14.00
+---------------------------
+
+
+output: https://github.com/lottaimmeli/IODS-project
