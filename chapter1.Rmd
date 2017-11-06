@@ -1,8 +1,3 @@
----
-output:
-  word_document: default
-  html_document: default
----
 
 # About the project
 
@@ -11,16 +6,18 @@ output:
 "*Our era of data* - larger than ever and complex like chaos - **requires several skills** from statisticians and other data scientists."
 
 ## This is a course where you can learn new skills about.
+
 * using open data science tools
-* learn to use R
-* learn to use R markdown
-* learn to use Github
+
+* learn to use tools like
+    + R
+    - R-markdown
+    + Github
 
 The course takes place in Unioninkatu 25 
 ========================================
 
 Every tuesday at 14.00
 ---------------------------
-
-
-output: https://github.com/lottaimmeli/IODS-project
+ 
+https://github.com/lottaimmeli/IODS-project
