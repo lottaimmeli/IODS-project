@@ -103,7 +103,7 @@ plot(model2, which= c(2,1,5))
 This plot shows that the errors/residuals have constant variance. I can find a a equally spread residuals around a horizontal line without distinct patterns. This is a good indication!
 
 
-#### Q-Q plot (Normalit)
+#### Q-Q plot (normality)
 **With the Q-Q plot** I can explore that the residuals are normally distributed. Here I can see that point are very close to the line expect of upper and lower tails where there is some deviation. However I think this still is reasonable and I could interpret that the errors are normally distributed.
 
 #### Residuals vs Leverage 
