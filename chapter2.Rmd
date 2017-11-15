@@ -1,7 +1,110 @@
-# Insert chapter 2 title here
+# Chapter 2. Regression and model validation
 
-*Describe the work you have done this week and summarize your learning.*
+This week I am doing regression analysis and model validation. But first I had to wrangle with the original data. That was pretty difficult for me, but it was good practice and I just need to practice a lot more 
 
-- Describe your work and results clearly. 
-- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods
-- Assume the reader has no previous knowledge of your data or the more advanced methods you are using  
+## Description of the dataset
+
+```{r}
+# After I had been wrangling with the data and managed to write it out in a folder. I could use my own wrangled data for the further analysis... 
+
+students2014 <- read.csv(file="~/Documents/GitHub/IODS-project/Data/learning2014.csv", header = TRUE, sep=",")
+
+#Looking the data structure
+
+str(students2014)
+head(students2014)
+
+```
+This is a data of 166 observations (students). Of them we have 7 variables: the information about their gender, age, global attitude toward statistics (Attitude), exam points (Points) and their points related to different aspects of learning (Deep, strategic and surface learning). 
+
+
+
+## A graphical overview of the data and show summaries of the variables in the data. 
+
+
+
+```{r}
+pairs(students2014[-1], col=students2014$gender)
+summary(students2014)
+
+```
+
+
+I think this method is not very good. It??s very difficult to interpret it like this. I need a better graph..
+
+
+```{r}
+#use the packages GGally and ggplot2
+
+library(GGally)
+library(ggplot2)
+
+p <- ggpairs(students2014, mapping = aes(alpha=0.5), lower=list(combo =wrap("facethist", bins=20)))
+
+p
+
+```
+
+**This is better view of the data. All the variables (expect for the age, where skewness >0) are pretty nicely normally distributed.** This also tells me the correlation between the different variables. There doesn??t seem to be very strong correlation between the different variables since the correlation coefficients are between -0.3 - 0.4
+
+
+## Making a regression model
+
+```{r}
+#Choose three variables as explanatory variables and fit a regression model where exam points is the target (dependent) variable.
+
+model <- lm(Points ~ gender + Attitude + Age, data=students2014)
+summary(model)
+
+
+
+```
+
+I chose to study the association of exam points (target value) with gender, attitude and age (explanatory variables). **Here I can see that the Attitude is the only one of these three explanatory values to be statistifically siginificant (p-value is < 0.05.)**
+
+Next I make a regression model with **only the one significant explanatory variable "Attitude".** 
+
+```{r}
+model2 <- lm(Points ~ Attitude, data=students2014)
+summary(model2)
+
+```
+Here I get the answer that the "Attitude" estimate is 0.35 and the p-value stays low (below 0.05 meaning it is significant). In other words this means that when Attitude increases by 1 unit the exam points increases by 0.35.
+
+Next I need to explain and interpret the **multiple R squared of the model**.
+R-squared is a statistical measure of how close the data are to the fitted regression line. Meaning how well the model fits my data.
+
+The definition of R-squared is the percentage of the response variable variation that is explained by a linear model.
+
+R-squared = Explained variation / Total variation
+
+R-squared is always between 0 and 100%:
+
+Here in the summary I can see the Multiple R-squared is 0.1906 -> 19% so this means that my model would explain only one fifth of the exam points around their mean.
+
+"In general, **the higher the R-squared, the better the model fits your data.** R-squared cannot determine whether the coefficient estimates and predictions are biased, which is why you must assess the residual plots."
+
+"R-squared does not indicate whether a regression model is adequate. You can have a low R-squared value for a good model, or a high R-squared value for a model that does not fit the data!"
+
+
+##Diagnostic plots
+
+However there are several assumptions of linear regression model. With the help of the following plots I can analyze the residuals of my model and see how well my linear regression model is working here (or should I even use it like this..)
+
+```{r}
+plot(model2, which= c(1,2,5))
+```
+
+### The assumptions of linear regresison models
+
+#### the errors are normally distributed (Q-Q plot)
+**With the Q-Q plot** I can explore this normality assumption. Here I can see that point are very close to the line expect of upper and lower tails where there is some deviation. However I think this still is reasonable and I could interpret that the errors are normally distributed.
+
+#### the errors are not correlated
+
+#### the errors have constant variance (residuals vs fitted -plot) **AND** the size of a given error does not depend on the explanatory variables
+
+Means that the size of the errors should not depend on the explanatory variables. 
+This I can study with a scatter plot of residuals versus model prediction (**residuals vs. fitted**). **Any** patter in the scatter plot implies a problem with the assumption. In my plot I can??t see ane patter so this 
+
+With the residuals vs leverage plot I can identify which observations have an unusually high impact

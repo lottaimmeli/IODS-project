@@ -1,23 +1,14 @@
 
 # About the project
 
-*Write a short description about the course and add a link to your github repository here. This is an R markdown (.Rmd) file so you can use R markdown syntax. See the 'Useful links' page in the mooc area (chapter 1) for instructions.*
+Our era of data - larger than ever and complex like chaos - **requires several skills** from statisticians and other data scientists. In this course I am about to learn some new skills to be able to work with data
 
-"*Our era of data* - larger than ever and complex like chaos - **requires several skills** from statisticians and other data scientists."
+## In this course I will learn
 
-## This is a course where you can learn new skills about.
-
-* using open data science tools
-
-* learn to use tools like
+* use open data science tools
     + R
     + R-markdown
     + Github
 
-The course takes place in Unioninkatu 25 
-========================================
-
-Every tuesday at 14.00
----------------------------
  
 https://github.com/lottaimmeli/IODS-project

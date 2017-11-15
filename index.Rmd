@@ -3,7 +3,7 @@ title: "IODS course project"
 author: "Lotta Immeli"
 output:
   html_document:
-    theme: readable
+    theme: journal
     toc: true
     toc_depth: 2
     fig_caption: true
