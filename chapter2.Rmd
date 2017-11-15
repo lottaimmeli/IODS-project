@@ -1,3 +1,8 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
 # Chapter 2. Regression and model validation
 
 This week I am doing regression analysis and model validation. But first I had to wrangle with the original data. That was pretty difficult for me, but it was good practice and I just need to practice a lot more 
@@ -34,7 +39,7 @@ I think this method is not very good. It??s very difficult to interpret it like 
 
 
 ```{r}
-#use the packages GGally and ggplot2
+#use the packages GGally and ggplot2 and get some help with the graphical overview
 
 library(GGally)
 library(ggplot2)
@@ -53,14 +58,14 @@ p
 ```{r}
 #Choose three variables as explanatory variables and fit a regression model where exam points is the target (dependent) variable.
 
-model <- lm(Points ~ gender + Attitude + Age, data=students2014)
+model <- lm(Points ~ gender + Attitude + stra, data=students2014)
 summary(model)
 
 
 
 ```
 
-I chose to study the association of exam points (target value) with gender, attitude and age (explanatory variables). **Here I can see that the Attitude is the only one of these three explanatory values to be statistifically siginificant (p-value is < 0.05.)**
+I chose to study the association of exam points (target value) with gender, attitude and strategic learning (explanatory variables). **Here I can see that the Attitude is the only one of these three explanatory values to be statistifically siginificant (p-value is < 0.05.). Also the t value 5.893 tells about the significance**
 
 Next I make a regression model with **only the one significant explanatory variable "Attitude".** 
 
@@ -74,37 +79,33 @@ Here I get the answer that the "Attitude" estimate is 0.35 and the p-value stays
 Next I need to explain and interpret the **multiple R squared of the model**.
 R-squared is a statistical measure of how close the data are to the fitted regression line. Meaning how well the model fits my data.
 
-The definition of R-squared is the percentage of the response variable variation that is explained by a linear model.
+**The definition of R-squared (selitysaste) is the percentage of the response variable variation that is explained by a linear model.**
 
 R-squared = Explained variation / Total variation
-
 R-squared is always between 0 and 100%:
 
-Here in the summary I can see the Multiple R-squared is 0.1906 -> 19% so this means that my model would explain only one fifth of the exam points around their mean.
+Here in the summary *I can see the Multiple R-squared is 0.1906 -> 19% so this means that my model would explain only one fifth of the exam points around their mean.*
 
-"In general, **the higher the R-squared, the better the model fits your data.** R-squared cannot determine whether the coefficient estimates and predictions are biased, which is why you must assess the residual plots."
+"In general, **the higher the R-squared, the better the model fits my data.** R-squared cannot determine whether the coefficient estimates and predictions are biased, which is why you must assess the residual plots."
 
 "R-squared does not indicate whether a regression model is adequate. You can have a low R-squared value for a good model, or a high R-squared value for a model that does not fit the data!"
 
 
-##Diagnostic plots
+##Diagnostic plots to explain the assumptions of the model
 
-However there are several assumptions of linear regression model. With the help of the following plots I can analyze the residuals of my model and see how well my linear regression model is working here (or should I even use it like this..)
+There are several assumptions of linear regression model. With the help of the following plots I can analyze the residuals of my model and see how well my linear regression model is working here or is there some serious problems with it.
 
 ```{r}
-plot(model2, which= c(1,2,5))
+plot(model2, which= c(2,1,5))
 ```
 
-### The assumptions of linear regresison models
+#### Residuals vs fitted plot (homoscedasticity)
+This plot shows that the errors/residuals have constant variance. I can find a a equally spread residuals around a horizontal line without distinct patterns. This is a good indication!
 
-#### the errors are normally distributed (Q-Q plot)
-**With the Q-Q plot** I can explore this normality assumption. Here I can see that point are very close to the line expect of upper and lower tails where there is some deviation. However I think this still is reasonable and I could interpret that the errors are normally distributed.
 
-#### the errors are not correlated
+#### Q-Q plot (Normalit)
+**With the Q-Q plot** I can explore that the residuals are normally distributed. Here I can see that point are very close to the line expect of upper and lower tails where there is some deviation. However I think this still is reasonable and I could interpret that the errors are normally distributed.
 
-#### the errors have constant variance (residuals vs fitted -plot) **AND** the size of a given error does not depend on the explanatory variables
+#### Residuals vs Leverage 
+This plot helps me to clear if I have outliers in my data that are influencial in my linear regression model. In my analysis I have no such cases that would be influencial in my model. All my cases are inside the Cook??s distance lines (I can not even see them)
 
-Means that the size of the errors should not depend on the explanatory variables. 
-This I can study with a scatter plot of residuals versus model prediction (**residuals vs. fitted**). **Any** patter in the scatter plot implies a problem with the assumption. In my plot I can??t see ane patter so this 
-
-With the residuals vs leverage plot I can identify which observations have an unusually high impact
