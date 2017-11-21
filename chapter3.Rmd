@@ -1,0 +1,213 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# Chapter 3. Logistic regression.
+
+### Reading the data
+
+This week I´m learning about logistic regression. 
+
+Before this analysis part I have been doing some data wrangling and prepared the data so that I am able to analyse it.
+
+```{r}
+
+#opening the data from the file and checking how it looks.. 
+
+alc <- read.csv("~lottaimmeli/Documents/GitHub/IODS-project/Data/alc.csv", header = TRUE, sep = ",")
+
+
+```
+
+### About the data
+
+This data is about student achievement in secondary education of two Portuguese schools. The data attributes include student grades, demographic, social and school related features and it was collected by using school reports and questionnaires. There were originally two datasets provided regarding the performance in two distinct subjects: Mathematics (mat) and Portuguese language (por). 
+
+In my data set I have combnined the information of these two datasets. I have observations of those 382 students who were present in both of the datasets Mathematics and Portuguese. In the original dataset there were 33 variables. However I have calculated some new variables 'alc_use' which corresponds to the average weekday and weekend alcohol consumption anb 'high_use' if the 'alc_use' is over 2.
+
+You can find more information about the original data set and the variables here:
+https://archive.ics.uci.edu/ml/datasets/Student+Performance
+
+
+```{r}
+dim(alc)
+
+colnames(alc)
+
+summary(alc)
+
+```
+
+
+### Choosing the variables to study the relationship between high or low alcohol consumption.
+
+The purpose of my analysis is to study the relationships between high/low alcohol consumption and some of the other variables in the data. To do this, I choose 4 interesting variables (failure, absences, famrel and higher) and state the hypotheses.
+
+1) The first variable "failure" tells about the number of past class failures. I think there might be a correlation between higher alcohol consumption and more class failures. 
+
+2) "Absences" corresponds to the number of school absences. I am instrested to find out if those who drink more have more school absences. 
+
+3) "Famrel" corresponds to the quality of family relationships. Maybe those who have poor family relationships consume more alcohol?
+
+4) "Higher" clarifies if these students want to have higher education (yes or no). Maybe those who want to educate them selves in the future will study more and drink less..
+
+### Numerically and graphically exploring the distributions of my chosen variables and their relationships with alcohol consumption.
+
+
+1) **First, is there some relationship between alcohol comsumptions and number of past class failures.**
+
+```{r}
+#Numerically exploring the relationship between high_use and failure. table and geom_count plot
+
+mytable <- table(high_use = alc$high_use, number_of_past_class_failures = alc$failures)
+
+addmargins(mytable)
+
+library(ggplot2)
+
+failure1 <- ggplot(alc, aes(x=high_use, y = failures))
+failure1 + geom_count()
+
+
+```
+
+In this table and plot I can see that the ones who have low use of alcohol might proportionally have less class failures compared to the students with high alcohol. As seen here the ones who consume less alcohol more often have no past class failures. 
+
+2) **Is there some relationship between alcohol consumption and school absences?**
+
+```{r}
+
+#making a boxplot
+g <-ggplot(alc, aes(x=high_use, y = absences))
+
+g2 <- g + geom_boxplot() + ggtitle("Absences versus high alcohol use")
+g2 
+
+
+```
+It looks like there might be a correlation between high use of alcohol and more school absences.
+
+
+3) **How about the relationship between alcohol consumption and family relationships?**
+
+```{r}
+#making a boxplot
+
+g_fam <-ggplot(alc, aes(x=high_use, y = famrel,))
+
+g_fam2 <- g_fam + geom_boxplot() 
+g_fam2
+
+
+```
+
+It seems that those who have low use of alcohol think that their family relationships are better (higher points). But which one is the cause and which one the effect. Are the students having bad relationships at home and they start to use more alcohol. Or is everything going well at home and from the point they start to use more alcohol the relationships at home gets more problematic. 
+
+
+4) **Relationship between alcohol consumption and future educational plans**
+
+```{r}
+table_plans <- table(high_use= alc$high_use, wants_high_education = alc$higher)
+table_plans
+
+round(prop.table(table_plans) * 100, 1)
+
+
+
+```
+
+Maybe it seems that those who consume more alcohol, do not have that often plan to get high education..
+
+
+###Logistic regression
+
+Now I want statistically explore the relationship between my four chosen variables and the binary high/low alcohol consumption variable as the target variable. Here is the summary of my fitted model.
+
+```{r}
+#find the model with glm in the first model there is the intercept and in the m2 I took the intercept away
+
+m <- glm(high_use ~ failures + absences + famrel + higher, data = alc, family = "binomial")
+summary(m)
+coef(m)
+
+m2 <- glm(high_use ~ failures + absences + famrel + higher - 1, data = alc, family = "binomial")
+summary(m2)
+coef(m2)
+
+```
+**Logistic regression model summary interpretation:**
+As seen above the p-value is low (<0.05) in failures, absences and famrel. The coefficient in failures and absences is positive (failures 0.45, absences 0.07), meaning that more failures and more absences predicts higher alcohol use. On the other hand familyrelationship seems to have negative effect (-0.31) on the high alcohol use. Meaning that better familyrelationship have protective effect on alcohol use.
+
+The future education plan (plans to get a higher education) have also negative effect  on the high alcohol use (-0.4), but it is not statistically significant. 
+
+**Presenting and interpreting the coefficients of the model as odds ratios and provide confidence intervals for them.**
+
+```{r}
+library(tidyverse)
+library(dplyr)
+
+#compute odds ratios and and confidence intervals
+OR <- coef(m) %>% exp
+CI <- exp(confint(m))
+
+cbind(OR, CI)
+
+```
+
+In this table one can see the coefficients of the model as odds ratios and their confidence intervals.  The odds ratios for failures is 1.54 (CI 1.05-2.28) and for absences 1.08 (1.04-1.14) meaning that higher consumption of alcohol increases the odds for absence and failures by 1.54 and 1.08 times respectively. The better family relationship makes the odds for high alcohol consumption 0.8 times less likely.
+
+The higher educational plan is not significant since the coefficient is 0.70 and CI is 0.2-2.1 (number 1 in included in the CI).
+
+These findings support my earlier hypotheses.  
+
+### Exploring the predictive power of my model. 
+
+I´m using the variables which had a statistical relationship with high/low alcohol consumption according to my model and exploring the predictive power.
+
+```{r}
+
+# predict the probability of high use and then adding, the new variable in the alc dataset. Then using the probability to make a prediction of high_use. lookin the last 10 observations
+
+probabilities <- predict(m, type= "response")
+alc <- mutate(alc, probability = probabilities)
+alc <- mutate(alc, prediction = probability > 0.5)
+select(alc, failures, absences, famrel, high_use, probability, prediction) %>% tail(10)
+
+table(high_use = alc$high_use, prediction = alc$prediction) %>% prop.table %>% addmargins
+
+gpred <- ggplot(alc, aes(x = probability, y = high_use, col = prediction))
+
+gpred + geom_point()
+
+# the training error
+
+# define a loss function (mean prediction error)
+loss_func <- function(class, prob) {
+  n_wrong <- abs(class - prob) >0.5
+  mean(n_wrong)
+}
+
+
+
+```
+
+
+
+The proportion of incorrectly classified observations (meaning the training error) is (0.30) 30%. I think the percentage is pretty high. I can´t really think my model is very good when
+
+
+Then I also made a 10-fold  cross-validation where I got the same number (0.30) 30% as the average number of wrong predictions.
+
+```{r}
+
+loss_func(class = alc$high_use, prob = alc$probability)
+
+# K-fold cross-validation
+library(boot)
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m, K = 10)
+
+# average number of wrong predictions in the cross validation
+cv$delta[1]
+```
