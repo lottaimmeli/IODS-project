@@ -195,7 +195,7 @@ loss_func <- function(class, prob) {
 
 
 
-The proportion of incorrectly classified observations (meaning the training error) is (0.30) 30%. I think the percentage is pretty high. I can??t really think my model is very good when one third of the observations  are incorrectly classified.
+The proportion of incorrectly classified observations (meaning the training error) is (0.30) 30%. I think the percentage is pretty high. I can't really think my model is very good when one third of the observations  are incorrectly classified.
 
 
 Then I also made a 10-fold  cross-validation where I got the same number (0.30) 30% as the average number of wrong predictions. 

@@ -592,7 +592,7 @@ loss_func &lt;- function(class, prob) {
   n_wrong &lt;- abs(class - prob) &gt;0.5
   mean(n_wrong)
 }</code></pre>
-<p>The proportion of incorrectly classified observations (meaning the training error) is (0.30) 30%. I think the percentage is pretty high. I can??t really think my model is very good when one third of the observations are incorrectly classified.</p>
+<p>The proportion of incorrectly classified observations (meaning the training error) is (0.30) 30%. I think the percentage is pretty high. I can’t really think my model is very good when one third of the observations are incorrectly classified.</p>
 <p>Then I also made a 10-fold cross-validation where I got the same number (0.30) 30% as the average number of wrong predictions.</p>
 <pre class="r"><code>loss_func(class = alc$high_use, prob = alc$probability)</code></pre>
 <pre><code>## [1] 0.3010471</code></pre>
@@ -602,7 +602,7 @@ cv &lt;- cv.glm(data = alc, cost = loss_func, glmfit = m, K = 10)
 
 # average number of wrong predictions in the cross validation
 cv$delta[1]</code></pre>
-<pre><code>## [1] 0.3115183</code></pre>
+<pre><code>## [1] 0.3193717</code></pre>
 </div>
 </div>
 
