@@ -8,7 +8,7 @@ output:
 
 ### Reading the data
 
-This week I´m learning about logistic regression. 
+This week I??m learning about logistic regression. 
 
 Before this analysis part I have been doing some data wrangling and prepared the data so that I am able to analyse it.
 
@@ -164,7 +164,7 @@ These findings support my earlier hypotheses.
 
 ### Exploring the predictive power of my model. 
 
-I´m using the variables which had a statistical relationship with high/low alcohol consumption according to my model and exploring the predictive power.
+I??m using the variables which had a statistical relationship with high/low alcohol consumption according to my model and exploring the predictive power.
 
 ```{r}
 
@@ -195,7 +195,7 @@ loss_func <- function(class, prob) {
 
 
 
-The proportion of incorrectly classified observations (meaning the training error) is (0.30) 30%. I think the percentage is pretty high. I can´t really think my model is very good when one third of the observations  are incorrectly classified.
+The proportion of incorrectly classified observations (meaning the training error) is (0.30) 30%. I think the percentage is pretty high. I can??t really think my model is very good when one third of the observations  are incorrectly classified.
 
 
 Then I also made a 10-fold  cross-validation where I got the same number (0.30) 30% as the average number of wrong predictions. 
