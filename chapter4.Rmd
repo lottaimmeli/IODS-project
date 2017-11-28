@@ -1,0 +1,285 @@
+---
+title: "chapter4.Rmd"
+output: html_document
+---
+
+# Chapter 4. Clustering and classification
+
+
+The theme for this week is clustering and classification. This is something totally new for me and let´s see what I will learn this week.
+
+##About the data
+
+In this exercise we are examining the Boston dataset from R MASS package. This dataset is about housing values in suburbs of Boston. The data frame has 506 observations and 14 variables.
+
+
+```{r}
+library(MASS)
+
+#calling for the Boston dataset form MASS package
+dim(Boston)
+str(Boston)
+
+```
+
+So we have 506 subrubs of Boston and here are the explanations of the different variables:
+
+crim : per capita crime rate by town
+zn: proportion of residential land zoned for lots over 25,000 sq.ft.
+indus: proportion of non-retail business acres per town
+chas: Charles River dummy variable (= 1 if tract bounds river; 0 otherwise)
+nox: nitrogen oxides concentration (parts per 10 million)
+rm: average number of rooms per dwelling
+age: proportion of owner-occupied units built prior to 1940
+dis: weighted mean of distances to five Boston employment centres
+rad: index of accessibility to radial highways
+tax: full-value property-tax rate per \$10,000.
+ptratio: pupil-teacher ratio by town
+black: 1000(Bk - 0.63)^2 where Bk is the proportion of blacks by town
+lstat: lower status of the population (percent)
+medv: median value of owner-occupied homes in \$1000s
+
+```{r}
+
+#calling for the different packages I might use in this exercise
+library(ggplot2)
+library(GGally)
+library(tidyverse)
+library(corrplot)
+
+#checking the summary of the Boston dataset, 
+summary(Boston)
+
+
+```
+
+Here is the summary of the data. Chas is a binary variable. Other variables execpt for the crim and zn seems to be normally distributed (mean and median more or less close to each other). 
+
+
+## Looking for the correlations
+
+Let's also make a graph..
+
+```{r}
+
+#graphical overview
+pairs(Boston)
+
+```
+
+With the pairs plot it's not very easy the see any corralations. Let´s study the correlations between the different variables with correlation plot.
+```{r}
+
+#making a correlation matrix and drawing a correlation plot to be able to visualie it better and for easier interpretation
+
+cormatrix <- cor(Boston)
+cormatrix %>% round(digits=2)
+corrplot(cormatrix, method="circle", type = "upper", cl.pos = "b", tl.pos = "d", tl.cex = 0.6)
+
+
+```
+
+There is strong negative correlation (big red ball), between dis-nox, dis-age adn dis-indus. Meaning that moving furher from Boston employment centers the Nitrogen oxide concentration goes down, the proportion of owner-occupied units built prior to 1940 goes down. This makes sense.
+
+Also lower status of the population (lstat) and median value of owner-occupied homes (medv) have strong neagtive correlation. When the percent of lower status of the population gets bigger the median value of owner-occupied homes in \$1000s gets smaller.  This also is understandable.
+
+
+Rad and tax have strong positive correlation, meaning when the index of accessibility to radial highways
+rises also the full-value property-tax rate per \$10,000 rises. Why not?
+
+
+## Getting ready for the analysis
+
+Let's move furher with the analysis..
+
+**I need to standardise the dataset to get normally distributed data. ** I print the summary of the scaled data set.
+
+```{r}
+#Standardising the dataset
+boston_scaled <- scale(Boston)
+
+#printing out summaries of the scaled data
+summary(boston_scaled)
+
+
+#My boston_sclaed data is a matrix and I make it as a data frame for the future
+class(boston_scaled)
+
+boston_scaled<- as.data.frame(boston_scaled)
+
+```
+
+Now we have scaled the data and as seen in the summary now all the means and medians are close to each other meaning that they are normally distributed and with the help of the scaling this data can be fitted in a model.
+
+Next I will change the continuous crime rate variable in my data set to be a categorical variable. I want to cut the crim variable by quantiles to get the high, low and middle rates of crime into their own categories. I drop the old crim variable from the dataset and replace it with the new crime variable.
+
+```{r}
+#create a quantile vector
+bins <- quantile(boston_scaled$crim)
+bins
+
+#and create a categorial variable crime
+
+crime <- cut(boston_scaled$crim, breaks = bins, include.lowest = TRUE, label= c("low", "med_low", "med_high", "high"))
+
+
+table(crime)
+summary(boston_scaled)
+
+library(dplyr)
+
+boston_scaled <- dplyr::select(boston_scaled, -crim)
+boston_scaled <- data.frame(boston_scaled, crime)
+summary(boston_scaled)
+dim(boston_scaled)
+```
+
+Now I need to divide the dataset to train and test sets, so that 80% of the data belongs to the train set.
+
+
+```{r}
+#Here I make the train and the test sets. I choose 80% of the observations to the train set and the rest to the test set
+dim(boston_scaled)
+
+n <- nrow(boston_scaled)
+n
+ind <- sample(n, size = n * 0.8)
+
+dim(ind)
+#create the train set
+
+train <- boston_scaled[ind,]
+str(train)
+
+#create the test set
+test <- boston_scaled[-ind,]
+str(test)
+```
+
+## Linear discriminan analysis (LDA)
+
+
+Now I'm making a linear discriminant analysis on the train set. I use the categorical crime rate as the target variable and all the other variables are predictor variables. I draw the LDA (bi)plot of the model.  
+
+
+```{r}
+# fit the linear discriminant analysis on the train set. crime as the target variable and all the other variables as predictor variables
+
+
+lda.fit <- lda(formula= crime ~ ., data = train)
+
+
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "red", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+
+# target classes as numeric
+classes <- as.numeric(train$crime)
+
+# drawing a plot of the lda results
+plot(lda.fit, dimen = 2, col=classes, pch=classes)
+lda.arrows(lda.fit, myscale = 1)
+
+```
+Then I predict the classes with the LDA model on my test data and cross tabulate the results with the crime categories from the test set. 
+
+```{r}
+#saving the crime categories from the test set 
+correct_classes <- test$crime
+
+library(dplyr)
+
+
+#removing the categorial crime variable from the test dataset
+
+test <- dplyr::select(test, -crime)
+
+#Predicting the vallses with the LDA model on the test data
+lda.pred <- predict(lda.fit, newdata = test)
+
+#cross tablating the results
+table(correct = correct_classes, predicted = lda.pred$class)
+
+```
+
+Here I can see how well my model is working with the predicting.
+My model works well predicting the high crime rates, byt it makes some errors predicting the other classes.
+The same phenomena was visible in the train set plot.
+
+## Distance measures and clustering
+
+Next I move towards clustering and measure the distances. I use the Euklidean distance, which is possibly the most common one. K-means is old and much used clustering method. Kmeans counts the distance matrix automatically but I have to choose the number of clusters. I tryed to make the model wiht 4 clusters, but for me it seems that 3 clusters works better.
+
+ Investigate what is the optimal number of clusters and run the algorithm again. Visualize the clusters (for example with the pairs() or ggpairs() functions, where the clusters are separated with colors) and interpret the results.
+
+```{r}
+#Reloading the Boston dataset and standardising the dataset (variables have to be normally ditributed)
+dim(Boston)
+scale_Boston2 <- scale(Boston)
+
+scale_Boston2 <- as.data.frame(scale_Boston2)
+
+
+#Calculating the distances. Euklidean distance
+
+dist_eu <- dist(scale_Boston2)
+summary(dist_eu)
+
+
+# k-means clustering
+km <-kmeans(scale_Boston2, centers = 3)
+
+
+# ploting the Boston dataset with clusters
+pairs(scale_Boston2, col = km$cluster)
+pairs(scale_Boston2[1:6], col = km$cluster)
+pairs(scale_Boston2[7:13], col = km$cluster)
+
+
+
+```
+
+Next I investigate what is the optimal number of clusters. There are many ways to find the optimal number of clusters but here I will be using the Total of within cluster sum of squares (WCSS) and visualising the result with a plot.
+
+
+```{r}
+
+
+# determine the number of clusters
+k_max <- 10
+
+# calculate the total within sum of squares
+twcss <- sapply(1:k_max, function(k){kmeans(scale_Boston2, k)$tot.withinss})
+
+# visualize the results
+qplot(x = 1:k_max, y = twcss, geom = 'line')
+
+
+
+```
+
+The optimal number of clusters is when the total WCSS drops radically and above I can see that it happens around x= 2. So the optimal number of clusters would be 2. Next I run the algorithm again with two clusters.
+
+
+```{r}
+
+# k-means clustering
+km <-kmeans(scale_Boston2, centers = 2)
+
+# plot the Boston dataset with clusters
+pairs(scale_Boston2, col = km$cluster)
+pairs(scale_Boston2[1:8], col = km$cluster)
+pairs(scale_Boston2[6:13], col = km$cluster)
+
+
+```
+With the bigger pairs plot is more difficult to interpret the results so I made also two more precise plots to be able to study some effects more precise. In the first plot (where all the variables are included) I can see that the variables chas  doesn´t follow any pattern with any of the variables. 
+There are many pairs that doesn´t follow any nice pattern. However I think I might find negative correlation between indus-dis, nox-dis, dis-lstat and positive correlation between indus-nox, age-nox, age-lstat.
+ 
+
+

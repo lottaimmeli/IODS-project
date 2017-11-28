@@ -3,7 +3,7 @@ title: "IODS course project"
 author: "Lotta Immeli"
 output:
   html_document:
-    theme: journal
+    theme: cosmo
     toc: true
     toc_depth: 2
     fig_caption: true
@@ -25,5 +25,10 @@ output:
 ***
 
 ```{r child = "chapter3.Rmd"}
+```
+
+***
+
+```{r child = "chapter4.Rmd"}
 ```
 
