@@ -1,8 +1,8 @@
 ---
-title: "chapter4.Rmd"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
-
 # Chapter 4. Clustering and classification
 
 
@@ -278,6 +278,10 @@ pairs(scale_Boston2[6:13], col = km$cluster)
 
 
 ```
+
+
+**Interpretation**
+
 With the bigger pairs plot is more difficult to interpret the results so I made also two more precise plots to be able to study some effects more precise. In the first plot (where all the variables are included) I can see that the variables chas  doesn´t follow any pattern with any of the variables. 
 There are many pairs that doesn´t follow any nice pattern. However I think I might find negative correlation between indus-dis, nox-dis, dis-lstat and positive correlation between indus-nox, age-nox, age-lstat.
  
