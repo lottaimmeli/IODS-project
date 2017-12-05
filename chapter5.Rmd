@@ -1,0 +1,195 @@
+# Chapter 5. Dimensionality and reduction techniques
+
+
+##Describing the data set
+This week I'm learning about dimensionality and reduction techniques. I will be working with ´human´-data. The dataset originates from the United Nations Development Programme and it is about measuring the development of a country with Human Development Index (HDI).
+More information about the HDI can be found here http://hdr.undp.org/en/content/human-development-index-hdi
+And more about the calculation of the HDI found here http://hdr.undp.org/sites/default/files/hdr2015_technical_notes.pdf
+
+I've been doing some data wrnagling before the analysis and here is briefly summary about my data.
+
+
+```{r}
+human <- read.table(file="~lottaimmeli/Documents/GitHub/IODS-project/Data/human.csv", header = TRUE, row.names=1, sep = ",")
+
+dim(human)
+colnames(human)
+summary(human)
+head(human)
+```
+
+I have a data of 155 countries and 8 variables of each country. First one can see the name of the country and the there are some indicators about the country's development.
+
+*Empowerment:*
+Edu.Ratio = Proportion of females with at least secondary education / Proportion of males with at least secondary education
+Labo.Ratio = Proportion of females in the labour force / Proportion of males in the labour force
+Rep.Per = Percetange of female representatives in parliament
+
+*Health and knowledge:*
+Life.Exp = Life expectancy at birth
+Edu.Exp = Expected years of schooling 
+GNI = Gross National Income per capita
+Mat.Mor = Maternal mortality ratio
+Ado.Birth = Adolescent birth rate
+
+
+```{r}
+#looking the structude of the data
+
+str(human)
+
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(GGally)
+
+#Also making a graphical overview of the data
+gather(human) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar()
+               
+h <- ggpairs(human, mapping = aes(alpha=0.5), lower=list(combo =wrap("facethist", bins=20)))
+h
+
+```
+
+Here can be seen a graphical overview and a summary of the data. All the variables are numeric, one as a interval and other continous numeric variables. Only the Edu.Exp variable is normally distributed.
+
+Let's study the relationship between the variables with correlation matrix.
+
+
+```{r}
+#making a correlation matrix and drawing a correlation plot to be able to visualie it better and for easier interpretation
+
+library(corrplot)
+library(tidyverse)
+
+correlation <- cor(human)
+correlation %>% round(digits=2)
+corrplot.mixed(correlation, lower.col = "black", number.cex = .6)
+
+```
+
+Here can be seen that percetange of female representatives in parliament (Rep.Per) or Proportion of females in the labour force / Proportion of males in the labour force (Labo.Ratio) don't seem to have strong correlations with any of the other variables.
+
+The maternal mortality ratio (Mat.Mor) and life expectancy have strong negative correlation. Meaning that when maternal mortality ratio gets higher life expactancy gets lower, which makes sense. 
+Also adolescence birth ratio (Ado.Birth) has strong negative correlation with life expectancy.
+Higher education datio and GNI seems to affect positively to life expactancy.
+
+
+## Principal component analysis (PCA)
+
+First I make the PCA to the non-standardised data. 
+
+Principal Component Analysis (PCA) can be performed by two slightly different matrix decomposition methods from linear algebra: the Eigenvalue Decomposition and the Singular Value Decomposition (SVD). The function prcomp() function uses the SVD and is the preferred, more numerically accurate method.
+
+```{r}
+
+#Making PCA with SVD method
+pca_human <- prcomp(human)
+
+biplot(pca_human, choices = 1:2, cex= c(0.5,1.0), col=c("coral", "black"))
+
+```
+
+Now almost all the variables are gathered in a one courner and I get only one arrow. The other arrows are of zero length and indeterminate angle so the are skipped. Because the PCA is sensitive to the relative scaling of the original features and it assumes that features with larger variance are more important than features with smaller variance without the scaling my biplot looks like this. The GNI has the largest variance it becomes dominant here.
+
+Standardisation of the data might be a good idea. So next I'm going to standardise the data and do the PCA again.
+
+
+```{r}
+#Standardise the data and make the data matrix as data frame for the further analysis.
+
+human_scaled <- scale(human)
+str(human_scaled)
+summary(human_scaled)
+class(human_scaled)
+
+human_scaled<- as.data.frame(human_scaled)
+
+#Make the pca again with SVD method
+
+pca_human_s <- prcomp(human_scaled)
+
+biplot(pca_human_s, choices = 1:2, cex= c(0.5,1.0), col=c("coral", "black"))
+
+```
+The standarisation helps a lot. Now the relative scaling between the variables is more similar and the GNI (with largest variance) doesn't run over the other variables.
+
+Here is seen the same phenomena as in the correlation plot. Labo.Ratio and Rep per. Are alone here close to zero and they don't show to have any correlation with the other variables.
+
+Edu.Exp, GNI, Edu.Ratio and Life.Exp are situated together and the arrows share a small angle meaning that these variables have high positive correlation.  Mat.Mor and Ado.Birth have high angle with the previous ones meaning that they have high negative correlation with the earlier mentioned features.
+
+The angle between a feature and a PC axis can be interpret as the correlation between the two. Small angle = high positive correlation.
+
+The length of the arrows are proportional to the standard deviations of the features and they seem to be pretty similar with the different variables.
+
+
+ but the actual phenomenons they relate to. (0-4 points)
+
+Give your personal interpretations of the first two principal component dimensions based on the biplot drawn after PCA on the standardized human data. (0-2 points)
+
+Then do Multiple Correspondence Analysis on the tea data (or to a certain columns of the data, it’s up to you). Interpret the results of the MCA and draw at least the variable biplot of the analysis. You can also explore other plotting options for MCA. Comment on the output of the plots. (0-4 points)
+
+
+## Multiple Correspondence Analysis (MCA)
+
+Next I will be doing some MCA. For this I need the FactoMineR package.
+
+```{r}
+
+library(FactoMineR)
+```
+From this packages I will be using the tea data. Now let's see how the data looks like.
+
+```{r}
+data(tea)
+colnames(tea)
+summary(tea)
+str(tea)
+
+
+```
+
+I can see that I have data of 300 observations and 36 variables. Except of the variable "age" all the other variables are categorical with 2 to 7 categories.
+
+I also make a graphical overview of the data.
+
+With MCA I can analyse the pattern of relationships of several categorical variables.
+MCA deals with categorical variables, but continuous ones can be used as background (supplementary) variables
+
+For the categorical variables, I can either use the indicator matrix or the Burt matrix in the analysis
+The Indicator matrix contains all the levels of categorical variables as a binary variables (1 = belongs to category, 0 = if doesn't)
+Burt matrix is a matrix of two-way cross-tabulations between all the variables in the dataset
+
+For the further analysis I will not be using all the 36 variables. Let's choose some of them. And make a summary and graphical overview.
+
+```{r}
+#Choose the column to keep
+library(dplyr)
+library(tidyverse)
+library(FactoMineR)
+
+keep <- c("Tea", "How", "sugar", "sex", "age_Q", "breakfast", "work", "price")
+
+#make a new data set with the selected columns
+tea1 <- tea[, keep]
+library(GGally)
+library(ggplot2)
+
+#summary and visualisation of the tea set with my chosen variables
+summary(tea1)
+gather(tea1) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() + theme(axis.text.x = element_text(angle = 45, hjust =1, size =8))
+
+```
+```{r}
+# multiple correspondence analysis
+mca <- MCA(tea1, graph = FALSE)
+
+# summary of the model
+summary(mca)
+
+# visualize MCA
+plot(mca, invisible=c("ind"), habillage = "quali")
+
+```
+
+

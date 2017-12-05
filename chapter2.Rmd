@@ -1,8 +1,4 @@
----
-output:
-  html_document: default
-  pdf_document: default
----
+
 # Chapter 2. Regression and model validation
 
 This week I am doing regression analysis and model validation. But first I had to wrangle with the original data. That was pretty difficult for me, but it was good practice and I just need to practice a lot more 

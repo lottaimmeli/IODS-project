@@ -60,3 +60,99 @@ test10 <- read.csv("human.csv", header = TRUE, sep = ",")
 dim(test10)
 str(test10)
 View(test10)
+
+#Continuing with the data wrangling in next week 30.11.2017
+
+#Mutate the data: transform the Gross National Income (GNI) variable to numeric 
+
+str(human)
+GNI_new <- str_replace(human$GNI, pattern=",", replace ="") %>% as.numeric
+GNI_new
+
+human <- mutate(human, GNI=GNI_new)
+human
+str(human)
+
+#Exclude unneeded variables: 
+#keep only the columns matching the following variable names. I have renamed some of the variables
+#little bit differently so here are the explanations.
+#(described in the meta file above):  
+#"Country", "Edu2.FM" = "Edu.Ratio", "Labo.FM"="Labo.Ratio", "Edu.Exp", "Life.Exp", "GNI", 
+#"Mat.Mor", "Ado.Birth", "Parli.F"="Rep.per"
+
+keep <- c("Country", "Edu.Ratio", "Labo.Ratio", "Life.Exp", "Edu.Exp", "GNI", "Mat.Mor", "Ado.Birth", "Rep.Per")
+
+human <- select(human, one_of(keep))
+str(human)
+
+complete.cases(human)
+
+#Remove all rows with missing values
+
+# print out the data along with a completeness indicator as the last column
+data.frame(human[-1], comp = complete.cases(human))
+
+# filter out all rows with NA values
+human_ <- filter(human, complete.cases(human))
+human_
+
+
+
+#Remove the observations which relate to regions instead of countries.
+
+head(human_)
+tail(human_, 10)
+
+# I can see that the last 7 observations relate to regions..
+
+# define the last indice we want to keep
+last <- nrow(human_) - 7
+human2 <- human_[1:last, ]
+
+human2
+tail(human2)
+
+#Define the row names of the data by the country names and 
+#remove the country name column from the data. 
+
+# add countries as rownames. There were some problems but when setting the data as data frame it
+#started to work out
+library(tibble)
+
+rownames(human2) <- human2$Country
+human2
+human2<- as.data.frame(human2)
+human2
+
+human3 <- select(human2, -Country)
+human3
+
+
+#The data should now have 155 observations and 8 variables. 
+dim(human3)
+
+#That is correct.
+
+#Save the human data in your data folder including the row names. I overwrited the 
+#old ‘human’ data.
+
+
+human<- human3
+human
+
+write.csv(human, file = "human.csv", eol= "\r", na = "NA", row.names = TRUE)
+
+testi <- read.table(file="human.csv", header = TRUE, row.names=1, sep = ",")
+dim(testi)
+str(testi)
+View(testi)
+
+
+
+
+
+
+
+
+
+

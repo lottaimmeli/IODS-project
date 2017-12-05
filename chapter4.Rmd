@@ -1,12 +1,8 @@
----
-output:
-  html_document: default
-  pdf_document: default
----
+
 # Chapter 4. Clustering and classification
 
 
-The theme for this week is clustering and classification. This is something totally new for me and let´s see what I will learn this week.
+The theme for this week is clustering and classification. This is something totally new for me and let??s see what I will learn this week.
 
 ##About the data
 
@@ -67,7 +63,7 @@ pairs(Boston)
 
 ```
 
-With the pairs plot it's not very easy the see any corralations. Let´s study the correlations between the different variables with correlation plot.
+With the pairs plot it's not very easy the see any corralations. Let??s study the correlations between the different variables with correlation plot.
 ```{r}
 
 #making a correlation matrix and drawing a correlation plot to be able to visualie it better and for easier interpretation
@@ -266,6 +262,11 @@ qplot(x = 1:k_max, y = twcss, geom = 'line')
 The optimal number of clusters is when the total WCSS drops radically and above I can see that it happens around x= 2. So the optimal number of clusters would be 2. Next I run the algorithm again with two clusters.
 
 
+**Clustering and Interpretation**
+
+The bigger pairs plot makes a bit difficult to interpret the results so I made also two more precise plots to be able to study some effects more precise. In the first plot (where all the variables are included) I can see that the variables chas  doesn't follow any pattern with any of the variables. 
+There are many pairs that doesn??t follow any nice pattern. However I think I might find negative correlation between indus-dis, nox-dis, dis-lstat and positive correlation between indus-nox, age-nox, age-lstat.
+
 ```{r}
 
 # k-means clustering
@@ -280,10 +281,11 @@ pairs(scale_Boston2[6:13], col = km$cluster)
 ```
 
 
-**Interpretation**
-
-With the bigger pairs plot is more difficult to interpret the results so I made also two more precise plots to be able to study some effects more precise. In the first plot (where all the variables are included) I can see that the variables chas  doesn´t follow any pattern with any of the variables. 
-There are many pairs that doesn´t follow any nice pattern. However I think I might find negative correlation between indus-dis, nox-dis, dis-lstat and positive correlation between indus-nox, age-nox, age-lstat.
+.
  
+
+```{r}
+
+```
 
 
